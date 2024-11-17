@@ -5,19 +5,40 @@ function createScene() {
   return new THREE.Scene();
 }
 
-function createCube() {
-  const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+type CubeOptions = {
+  width?: number;
+  height?: number;
+  depth?: number;
+  cubeColor?: THREE.ColorRepresentation;
+  edgeColor?: THREE.ColorRepresentation;
+  wireframe?: boolean;
+};
+function createCube(options?: CubeOptions) {
+  const width = options?.width || 1;
+  const height = options?.height || 1;
+  const depth = options?.depth || 1;
+  const cubeColor = options?.cubeColor || 0xff0000;
+  const edgeColor = options?.edgeColor;
+  const wireframe = options?.wireframe || false;
 
-  const edgesGeometry = new THREE.EdgesGeometry(cubeGeometry);
-  const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-  const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+  const cubeGeometry = new THREE.BoxGeometry(width, height, depth);
+  const cubeMaterial = new THREE.MeshBasicMaterial({
+    color: cubeColor,
+    wireframe,
+  });
+  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
-  cubeMesh.rotation.y = THREE.MathUtils.degToRad(30);
-  edges.rotation.y = THREE.MathUtils.degToRad(30);
+  const cubeGroup = new THREE.Group();
+  cubeGroup.add(cube);
 
-  return { cubeMesh, edges };
+  if (edgeColor !== undefined) {
+    const edgesGeometry = new THREE.EdgesGeometry(cubeGeometry);
+    const edgesMaterial = new THREE.LineBasicMaterial({ color: edgeColor });
+    const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+    cubeGroup.add(edges);
+  }
+
+  return cubeGroup;
 }
 
 function createCamera() {
@@ -33,16 +54,23 @@ function createRenderer(canvas: HTMLCanvasElement) {
   return renderer;
 }
 
-function createControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
+function createControls(
+  camera: THREE.Camera,
+  renderer: THREE.WebGLRenderer,
+  autoRotate?: boolean
+) {
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 1.0;
+  if (autoRotate) {
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.0;
+  }
   controls.enableDamping = true;
   controls.dampingFactor = 0.25;
   return controls;
 }
 
 function addAxesHelper(scene: THREE.Scene) {
+  // * Add axes helper, x-axis is red, y-axis is green, z-axis is blue
   const axesHelper = new THREE.AxesHelper(5);
   scene.add(axesHelper);
 }
@@ -60,9 +88,24 @@ function handleResize(
 
 export function initScene() {
   const scene = createScene();
-  const { cubeMesh, edges } = createCube();
-  scene.add(cubeMesh);
-  scene.add(edges);
+
+  const cube1 = createCube({ wireframe: true });
+  const cube2 = createCube({ cubeColor: 0x00ff00, edgeColor: 0x000000 });
+  const cube3 = createCube({ cubeColor: 0x0000ff, edgeColor: 0x000000 });
+  cube2.position.x = 2;
+  cube3.position.x = -2;
+
+  const cubeGroup = new THREE.Group();
+  cubeGroup.add(cube1);
+  cubeGroup.add(cube2);
+  cubeGroup.add(cube3);
+
+  // * Rotate a cube, default order is XYZ
+  cube1.rotation.reorder("YXZ");
+  // * set rotation along y-axis to 45 degrees, x-axis to 15 degrees
+  cube1.rotation.y = THREE.MathUtils.degToRad(45);
+  cube1.rotation.x = THREE.MathUtils.degToRad(-15);
+  scene.add(cubeGroup);
 
   const camera = createCamera();
   const canvas = document.querySelector("canvas.threejs") as HTMLCanvasElement;
@@ -70,19 +113,23 @@ export function initScene() {
   const controls = createControls(camera, renderer);
 
   function animate() {
-    requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
+    return requestAnimationFrame(animate);
   }
 
-  animate();
+  const animateHandle = animate();
+
   handleResize(camera, renderer);
+
+  // * Add axes helper, x-axis is red, y-axis is green, z-axis is blue
   addAxesHelper(scene);
 
   const { devicePixelRatio } = window;
-  console.log({ scene, cubeMesh, canvas, OrbitControls, devicePixelRatio });
+  console.log({ scene, cubeGroup, canvas, OrbitControls, devicePixelRatio });
 
   return () => {
+    cancelAnimationFrame(animateHandle);
     window.onresize = null;
     scene.clear();
     renderer.dispose();
