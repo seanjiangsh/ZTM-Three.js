@@ -86,6 +86,33 @@ function handleResize(
   };
 }
 
+function animateMeshRotate(
+  mesh: THREE.Object3D,
+  deltaTime: number,
+  axis: "x" | "y" | "z",
+  degreesPerSecond: number
+) {
+  const fps = 1 / deltaTime;
+  const degreesPerFrame = degreesPerSecond / fps;
+  mesh.rotation[axis] += THREE.MathUtils.degToRad(degreesPerFrame);
+}
+
+function oscillationMeshSize(
+  mesh: THREE.Object3D,
+  elapsedTime: number,
+  axis: "x" | "y" | "z",
+  scales: { min: number; max: number },
+  frequency = 1
+) {
+  const { min: minScale, max: maxScale } = scales;
+  const angularFrequency = frequency * Math.PI * 2;
+  // * the factor is between 0 and 1
+  const factor = (Math.sin(elapsedTime * angularFrequency) + 1) / 2;
+  const newScale = factor * (maxScale - minScale) + minScale;
+  // console.log({ factor, newScale, elapsedTime });
+  mesh.scale[axis] = newScale;
+}
+
 export function initScene() {
   const scene = createScene();
 
@@ -112,12 +139,25 @@ export function initScene() {
   const renderer = createRenderer(canvas);
   const controls = createControls(camera, renderer);
 
+  const animateClock = new THREE.Clock();
+  let previouseElapsedTime = 0;
+
   function animate() {
+    const elapsedTime = animateClock.getElapsedTime();
+    const deltaTime = elapsedTime - previouseElapsedTime;
+    previouseElapsedTime = elapsedTime;
+
+    // * Animate the cube rotation
+    animateMeshRotate(cube2, deltaTime, "z", -90);
+    animateMeshRotate(cube2, deltaTime, "y", -90);
+
+    // * Animate the cube size oscillation
+    oscillationMeshSize(cube3, elapsedTime, "x", { min: 1, max: 2 });
+
     controls.update();
     renderer.render(scene, camera);
     return requestAnimationFrame(animate);
   }
-
   const animateHandle = animate();
 
   handleResize(camera, renderer);
