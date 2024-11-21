@@ -6,52 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZTM Three.js Course</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
     <canvas class="threejs"></canvas>
     <div id="scene-list-container">
       <button id="scene-list-toggle">Scenes</button>
-      <ul id="scene-list">
-        <li><a href="#" data-scene="hello-world">Hello World</a></li>
-        <li><a href="#" data-scene="geometry">Geometry</a></li>
-        <li><a href="#" data-scene="materials">Materials</a></li>
-        <!-- Add more scenes as needed -->
-      </ul>
+      <ul id="scene-list" />
     </div>
-    <script>
-      let currentSceneCleanup = null;
-
-      function loadScene(scene) {
-        if (currentSceneCleanup) {
-          currentSceneCleanup();
-        }
-
-        import(`/src/${scene}.ts`).then((module) => {
-          currentSceneCleanup = module.initScene();
-          document.title = `Three.js - ${scene}`;
-        });
-      }
-
-      document.querySelectorAll("#scene-list a").forEach((link) => {
-        link.addEventListener("click", (event) => {
-          event.preventDefault();
-          const scene = event.target.getAttribute("data-scene");
-          loadScene(scene);
-        });
-      });
-
-      const sceneListToggle = document.getElementById("scene-list-toggle");
-      const sceneList = document.getElementById("scene-list");
-      const sceneListContainer = document.getElementById(
-        "scene-list-container"
-      );
-
-      sceneListToggle.addEventListener("click", () => {
-        sceneList.classList.toggle("open");
-      });
-
-      // Load default scene
-      loadScene("materials");
-    </script>
   </body>
 </html>

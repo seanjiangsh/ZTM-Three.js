@@ -20,7 +20,6 @@ body {
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.3s ease;
 }
 
 #scene-list-toggle:hover {
@@ -31,8 +30,6 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 5px;
   display: none;
   position: absolute;
   top: 40px;
