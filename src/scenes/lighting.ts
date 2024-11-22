@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-
+import { RectAreaLightHelper } from "three/addons/helpers/RectAreaLightHelper.js";
 import { FolderApi, Pane } from "tweakpane";
 
 function createScene() {
@@ -16,7 +16,7 @@ type LoadedTexture = {
   normal: THREE.Texture;
   roughness: THREE.Texture;
 };
-function loadTextures() {
+function loadTextures(): { [key: string]: LoadedTexture } {
   const TL = new THREE.TextureLoader();
   const base = "/textures";
   const grass = `${base}/whispy-grass-meadow-bl`;
@@ -74,22 +74,94 @@ function getClonedTextures(textures: { [key: string]: LoadedTexture }) {
 }
 
 function createAmbientLight(tweakFolder: FolderApi) {
-  const light = new THREE.AmbientLight(0xffffff, 2.5);
-
-  const folder = tweakFolder.addFolder({ title: "Ambient Light" });
-  folder.addBinding(light, "color", { view: "color" });
-  folder.addBinding(light, "intensity", { min: 0, max: 5, step: 0.1 });
+  const light = new THREE.AmbientLight(0xffffff, 1);
+  const folder = tweakFolder.addFolder({
+    title: "Ambient Light",
+    expanded: false,
+  });
+  folder.addBinding(light, "color", { color: { type: "float" } });
+  folder.addBinding(light, "intensity", { min: 0, max: 100, step: 0.1 });
 
   return light;
 }
 
+function createHemisphereLight(tweakFolder: FolderApi) {
+  const light = new THREE.HemisphereLight(0x3434eb, 0xe88502, 5);
+  const folder = tweakFolder.addFolder({ title: "Hemisphere Light" });
+  folder.addBinding(light, "color", { color: { type: "float" } });
+  folder.addBinding(light, "groundColor", { color: { type: "float" } });
+  folder.addBinding(light, "intensity", { min: 0, max: 100, step: 0.1 });
+
+  return light;
+}
+
+function createDirectionalLight(
+  tweakFolder: FolderApi
+): [THREE.DirectionalLight, THREE.Object3D] {
+  const light = new THREE.DirectionalLight(0x4ae86f, 1);
+  light.position.set(8, 0, 0);
+
+  const lightTarget = new THREE.Object3D();
+  lightTarget.position.set(0, 10, 0);
+  light.target = lightTarget;
+
+  const folder = tweakFolder.addFolder({ title: "Directional Light" });
+  folder.addBinding(light, "color", { color: { type: "float" } });
+  folder.addBinding(light, "intensity", { min: 0, max: 100, step: 0.1 });
+  folder.addBinding(light, "position", { min: -10, max: 10, step: 0.2 });
+  folder.addBinding(lightTarget, "position", { min: -10, max: 10, step: 0.2 });
+
+  return [light, lightTarget];
+}
+
 function createPointLight(tweakFolder: FolderApi) {
-  const light = new THREE.PointLight(0xffffff, 10);
+  const light = new THREE.PointLight(0xffffff, 5, 10, 2);
   light.position.set(0, 2, 2);
 
   const folder = tweakFolder.addFolder({ title: "Point Light" });
-  folder.addBinding(light, "color", { view: "color" });
-  folder.addBinding(light, "intensity", { min: 0, max: 10, step: 0.1 });
+  folder.addBinding(light, "color", { color: { type: "float" } });
+  folder.addBinding(light, "intensity", { min: 0, max: 100, step: 0.1 });
+  folder.addBinding(light, "distance", { min: 0, max: 50, step: 0.1 });
+  folder.addBinding(light, "position", { min: -10, max: 10, step: 0.2 });
+  folder.addBinding(light, "decay", { min: 0, max: 10, step: 0.01 });
+
+  return light;
+}
+
+function createSpotLight(
+  tweakFolder: FolderApi
+): [THREE.SpotLight, THREE.Object3D] {
+  const light = new THREE.SpotLight(0xffffff, 20, 10);
+  light.position.set(-5, 5, 0);
+  light.angle = 0.5;
+  light.decay = 1;
+
+  const lightTarget = new THREE.Object3D();
+  lightTarget.position.set(-5, 0, 0);
+  light.target = lightTarget;
+
+  const folder = tweakFolder.addFolder({ title: "Spot Light" });
+  folder.addBinding(light, "color", { color: { type: "float" } });
+  folder.addBinding(light, "intensity", { min: 0, max: 100, step: 0.1 });
+  folder.addBinding(light, "distance", { min: 0, max: 50, step: 0.1 });
+  folder.addBinding(light, "angle", { min: 0, max: Math.PI, step: 0.01 });
+  folder.addBinding(light, "penumbra", { min: 0, max: 1, step: 0.01 });
+  folder.addBinding(light, "position", { min: -10, max: 10, step: 0.2 });
+  folder.addBinding(light, "decay", { min: 0, max: 10, step: 0.01 });
+
+  return [light, lightTarget];
+}
+
+function createRectAreaLight(tweakFolder: FolderApi) {
+  const light = new THREE.RectAreaLight(0x30fff1, 5, 5, 5);
+  light.position.set(0, 5, 0);
+  light.lookAt(0, 0, 0);
+
+  const folder = tweakFolder.addFolder({ title: "Rect Area Light" });
+  folder.addBinding(light, "color", { color: { type: "float" } });
+  folder.addBinding(light, "intensity", { min: 0, max: 100, step: 0.1 });
+  folder.addBinding(light, "width", { min: 0, max: 50, step: 0.1 });
+  folder.addBinding(light, "height", { min: 0, max: 50, step: 0.1 });
   folder.addBinding(light, "position", { min: -10, max: 10, step: 0.2 });
 
   return light;
@@ -108,6 +180,7 @@ function createPlaneGeometry(
   material.map = albedo;
   material.metalnessMap = metallic;
   material.normalMap = normal;
+  material.roughness = 0.3; // Set roughness to 0.3
   material.roughnessMap = roughness;
   material.aoMap = ao;
   material.displacementMap = height;
@@ -171,7 +244,7 @@ function createSphereGeometry(
 
   const sphere = new THREE.Mesh(geometry, material);
 
-  const folder = tweakFolder.addFolder({ title: name });
+  const folder = tweakFolder.addFolder({ title: name, expanded: false });
   const tweakCfg = { min: 0, max: 1, step: 0.01 };
   folder.addBinding(material, "metalness", tweakCfg);
   folder.addBinding(material, "roughness", tweakCfg);
@@ -323,7 +396,7 @@ function createTetrahedronGeometry(
 function createCamera() {
   const aspectRatio = window.innerWidth / window.innerHeight;
   const camera = new THREE.PerspectiveCamera(45, aspectRatio, 1, 10000);
-  camera.position.set(10, 5, 10);
+  camera.position.set(-10, 5, 10);
   return camera;
 }
 
@@ -348,10 +421,35 @@ function createControls(
   return controls;
 }
 
-function addAxesHelper(scene: THREE.Scene) {
+function addAxesHelper(camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
   // * Add axes helper, x-axis is red, y-axis is green, z-axis is blue
-  const axesHelper = new THREE.AxesHelper(5);
-  scene.add(axesHelper);
+  // Create a separate scene for the AxesHelper
+  const axesScene = new THREE.Scene();
+  const axesHelper = new THREE.AxesHelper(2);
+  axesScene.add(axesHelper);
+
+  // Create an orthographic camera for the AxesHelper
+  const axesCamera = new THREE.OrthographicCamera(-5, 5, 5);
+  axesCamera.position.set(0, 5, 10);
+  axesCamera.lookAt(axesHelper.position);
+
+  // * return the animation function
+  return () => {
+    // * Synchronize the AxesHelper's camera with the main camera
+    axesCamera.position.copy(camera.position);
+    axesCamera.quaternion.copy(camera.quaternion);
+    axesCamera.updateMatrixWorld();
+
+    // * Render the AxesHelper scene
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    renderer.autoClear = false;
+    renderer.clearDepth();
+    renderer.setViewport(-100, 50, width / 4, height / 4);
+    renderer.render(axesScene, axesCamera);
+    renderer.setViewport(0, 0, width, height);
+    renderer.autoClear = true;
+  };
 }
 
 function handleResize(
@@ -389,12 +487,53 @@ export default function initScene() {
   // * Light
   const lightFolder = tweakFolder.addFolder({
     title: "Light",
-    expanded: false,
+    expanded: true,
   });
   const ambientLight = createAmbientLight(lightFolder);
-  const pointLight = createPointLight(lightFolder);
   scene.add(ambientLight);
+
+  const hemisphereLight = createHemisphereLight(lightFolder);
+  scene.add(hemisphereLight);
+
+  const [directionalLight, directionalLightTarget] =
+    createDirectionalLight(lightFolder);
+  scene.add(directionalLight);
+  scene.add(directionalLightTarget);
+
+  const pointLight = createPointLight(lightFolder);
   scene.add(pointLight);
+
+  const [spotLight, spotLightTarget] = createSpotLight(lightFolder);
+  scene.add(spotLight);
+  scene.add(spotLightTarget);
+
+  const rectAreaLight = createRectAreaLight(lightFolder);
+  scene.add(rectAreaLight);
+
+  // * Light Helpers
+  const directionalLightHelper = new THREE.DirectionalLightHelper(
+    directionalLight,
+    0.2
+  );
+  scene.add(directionalLightHelper);
+
+  const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.2);
+  scene.add(pointLightHelper);
+
+  const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+  scene.add(spotLightHelper);
+
+  const rectAreaLightHelper = new RectAreaLightHelper(rectAreaLight);
+  scene.add(rectAreaLightHelper);
+
+  const updateLightHelpers = () => {
+    directionalLightHelper.update();
+    pointLightHelper.update();
+    spotLightHelper.update();
+  };
+
+  // * Load textures
+  const textures = loadTextures();
 
   // * Fog
   // Fog will gradually fade out objects as they move further away
@@ -402,16 +541,13 @@ export default function initScene() {
   scene.background = new THREE.Color(0x000000);
   scene.fog = new THREE.Fog(0x000000, 15, 100);
 
-  // * Load textures
-  const textures = loadTextures();
-
   // * Plane
   const textureForPlane = getClonedTextures(textures);
   const meshFolder = tweakFolder.addFolder({ title: "Mesh", expanded: false });
   const plane = createPlaneGeometry(
     "Ground Plane",
     meshFolder,
-    textureForPlane.grass
+    textureForPlane.boulder
   );
 
   // * Geometry
@@ -429,11 +565,7 @@ export default function initScene() {
     meshFolder,
     spaceCruiser
   );
-  const cone = createConeGeometry(
-    "Space Curiser Cone",
-    meshFolder,
-    spaceCruiser
-  );
+  const cone = createConeGeometry("Boulder Cone", meshFolder, boulder);
   const torusKnot = createTorusKnotGeometry(
     "Grass Torus Knot",
     meshFolder,
@@ -457,25 +589,37 @@ export default function initScene() {
 
   scene.add(plane, group);
 
-  addAxesHelper(scene);
-
   const camera = createCamera();
   const canvas = document.querySelector("canvas.threejs") as HTMLCanvasElement;
   const renderer = createRenderer(canvas);
   const controls = createControls(camera, renderer);
-
-  const animateClock = new THREE.Clock();
-  let previouseElapsedTime = 0;
-
-  function animate() {
-    // // * Rotate meshes
-    // const elapsedTime = animateClock.getElapsedTime();
-    // const deltaTime = elapsedTime - previouseElapsedTime;
-    // previouseElapsedTime = elapsedTime;
-    // animateMeshesRotate(group, deltaTime, "y", 30);
-
+  const updateCtrlAndRender = () => {
     controls.update();
     renderer.render(scene, camera);
+  };
+
+  // * Axis Helper
+  const updateAxesHelper = addAxesHelper(camera, renderer);
+
+  // * Animation
+  const animateClock = new THREE.Clock();
+  let previouseElapsedTime = 0;
+  function animate() {
+    // * Rotate meshes
+    const elapsedTime = animateClock.getElapsedTime();
+    const deltaTime = elapsedTime - previouseElapsedTime;
+    previouseElapsedTime = elapsedTime;
+    animateMeshesRotate(group, deltaTime, "y", 30);
+
+    // * Update light helpers
+    updateLightHelpers();
+
+    // * Update controls and render
+    updateCtrlAndRender();
+
+    // * Update axes helper
+    updateAxesHelper();
+
     return requestAnimationFrame(animate);
   }
   const animateHandle = animate();

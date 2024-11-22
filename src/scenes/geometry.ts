@@ -71,6 +71,7 @@ function createSphereGeometry(tweakPane: Pane) {
     ...segmentParams,
   });
   tweakFolder.addBinding(params, "color", { view: "color" });
+
   tweakFolder.on("change", () => {
     sphere.geometry.dispose();
     const args = Object.values(params);

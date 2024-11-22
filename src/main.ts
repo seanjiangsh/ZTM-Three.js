@@ -2,12 +2,14 @@ import helloWorld from "./scenes/hello-world";
 import geometry from "./scenes/geometry";
 import materials from "./scenes/materials";
 import textures from "./scenes/textures";
+import lighting from "./scenes/lighting";
 
 const scenes: { [key: string]: () => void } = {
   "hello-world": helloWorld,
-  geometry: geometry,
-  materials: materials,
-  textures: textures,
+  geometry,
+  materials,
+  textures,
+  lighting,
 };
 
 let currentSceneCleanup: (() => void) | null = null;
@@ -58,4 +60,4 @@ sceneListToggle.addEventListener("click", () => {
 });
 
 // Load default scene
-loadScene("textures");
+loadScene("lighting");
