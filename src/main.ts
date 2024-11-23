@@ -4,6 +4,7 @@ import materials from "./scenes/materials";
 import textures from "./scenes/textures";
 import lighting from "./scenes/lighting";
 import shadows from "./scenes/shadows";
+import solarSystem from "./scenes/solar-system";
 
 const scenes: { [key: string]: () => void } = {
   "hello-world": helloWorld,
@@ -12,6 +13,7 @@ const scenes: { [key: string]: () => void } = {
   textures,
   lighting,
   shadows,
+  "Solar System": solarSystem,
 };
 
 let currentSceneCleanup: (() => void) | null = null;
@@ -62,4 +64,4 @@ sceneListToggle.addEventListener("click", () => {
 });
 
 // Load default scene
-loadScene("shadows");
+loadScene("Solar System");
