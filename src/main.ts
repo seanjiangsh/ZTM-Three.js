@@ -3,6 +3,7 @@ import geometry from "./scenes/geometry";
 import materials from "./scenes/materials";
 import textures from "./scenes/textures";
 import lighting from "./scenes/lighting";
+import shadows from "./scenes/shadows";
 
 const scenes: { [key: string]: () => void } = {
   "hello-world": helloWorld,
@@ -10,6 +11,7 @@ const scenes: { [key: string]: () => void } = {
   materials,
   textures,
   lighting,
+  shadows,
 };
 
 let currentSceneCleanup: (() => void) | null = null;
@@ -19,9 +21,9 @@ function loadScene(scene: string) {
     currentSceneCleanup();
   }
 
-  const sceneFunction = scenes[scene];
-  if (sceneFunction) {
-    sceneFunction();
+  const initScene = scenes[scene];
+  if (initScene) {
+    initScene();
   }
   document.title = `Three.js - ${scene}`;
 }
@@ -60,4 +62,4 @@ sceneListToggle.addEventListener("click", () => {
 });
 
 // Load default scene
-loadScene("lighting");
+loadScene("shadows");
