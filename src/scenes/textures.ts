@@ -380,7 +380,7 @@ function animateMeshesRotate(
   });
 }
 
-export default function initScene() {
+export default async function initScene() {
   const scene = createScene();
 
   const pane = new Pane();
@@ -488,8 +488,8 @@ export default function initScene() {
   return () => {
     cancelAnimationFrame(animateHandle);
     window.onresize = null;
-    scene.clear();
     renderer.dispose();
     controls.dispose();
+    scene.clear();
   };
 }

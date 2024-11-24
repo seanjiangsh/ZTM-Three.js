@@ -12,7 +12,7 @@ async function loadTextures() {
   const textureLoader = new THREE.TextureLoader();
   textureLoader.setPath(base);
   const cubeTextureLoader = new THREE.CubeTextureLoader();
-  cubeTextureLoader.setPath(`${base}/cubeMap`);
+  cubeTextureLoader.setPath(`${base}/cube-map`);
 
   // adding textures
   const sun = await textureLoader.loadAsync("/2k_sun.jpg");
@@ -175,8 +175,8 @@ function getPlanetData(textures: Awaited<ReturnType<typeof loadTextures>>) {
       material: new THREE.MeshStandardMaterial({ map: textures.saturn }),
       moons: [],
       ring: {
-        innerRadius: 3.5, // Scaled inner radius of the rings
-        outerRadius: 5.5, // Scaled outer radius of the rings
+        innerRadius: 1,
+        outerRadius: 2.5,
         texture: textures.saturnRing, // Texture for the rings
       },
     },
@@ -207,7 +207,7 @@ function createPlanet(
   planet: PlanetData,
   sphereGeometry: THREE.SphereGeometry
 ) {
-  const { radius, distance, material, tilt } = planet;
+  const { radius, distance, material, tilt, ring } = planet;
   const planetMesh = new THREE.Mesh(sphereGeometry, material);
   planetMesh.scale.setScalar(radius);
   planetMesh.rotation.z = THREE.MathUtils.degToRad(tilt); // Apply tilt
@@ -217,6 +217,48 @@ function createPlanet(
   planetMesh.userData.initialAngle = initialAngle; // Store the initial angle
   planetMesh.position.x = distance * Math.cos(initialAngle);
   planetMesh.position.z = distance * Math.sin(initialAngle);
+
+  // Add rings if the planet has them
+  if (ring) {
+    const { innerRadius, outerRadius, texture } = ring;
+    const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+
+    // Access the UV and position attributes of the geometry
+    const uv = ringGeometry.attributes.uv;
+    const position = ringGeometry.attributes.position;
+    const count = uv.count;
+
+    for (let i = 0; i < count; i++) {
+      // Get the x and y positions of the vertex
+      const x = position.getX(i);
+      const y = position.getY(i);
+
+      // Convert Cartesian coordinates (x, y) to polar coordinates (radius, angle)
+      const radius = Math.sqrt(x * x + y * y);
+      const angle = Math.atan2(y, x);
+
+      // Normalize radius to [0, 1]
+      const u = (radius - innerRadius) / (outerRadius - innerRadius);
+
+      // Normalize angle to [0, 1]
+      const v = (angle + Math.PI) / (2 * Math.PI);
+
+      // Set the new UV coordinates
+      uv.setXY(i, u, v);
+    }
+
+    // Notify Three.js that the UVs have been updated
+    uv.needsUpdate = true;
+
+    const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
+    ringMesh.rotation.x = Math.PI / 2; // Rotate the rings to lie on the XZ plane
+    planetMesh.add(ringMesh);
+  }
 
   return planetMesh;
 }
@@ -232,6 +274,10 @@ function createMoon(
   mesh.position.x = distance;
   mesh.castShadow = true;
   mesh.receiveShadow = true;
+
+  // Store the type as moon
+  mesh.userData.type = "moon";
+
   return mesh;
 }
 
@@ -261,9 +307,6 @@ function createCamera() {
 function createRenderer(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-
-  // * Set pixel ratio to be consistent across devices
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   return renderer;
 }
@@ -335,13 +378,15 @@ export default async function initScene() {
       planet.rotation.y += speed;
       planet.position.x = distance * Math.cos(planet.rotation.y + initialAngle);
       planet.position.z = distance * Math.sin(planet.rotation.y + initialAngle);
-      planet.children.forEach((moon, moonIndex) => {
-        const moonData = data.moons[moonIndex];
-        const { speed, distance } = moonData;
-        moon.rotation.y += speed;
-        moon.position.x = distance * Math.cos(moon.rotation.y);
-        moon.position.z = distance * Math.sin(moon.rotation.y);
-      });
+      planet.children
+        .filter((child) => child.userData.type === "moon")
+        .forEach((moon, moonIndex) => {
+          const moonData = data.moons[moonIndex];
+          const { speed, distance } = moonData;
+          moon.rotation.y += speed;
+          moon.position.x = distance * Math.cos(moon.rotation.y);
+          moon.position.z = distance * Math.sin(moon.rotation.y);
+        });
     });
 
     // * Update controls and render
@@ -357,8 +402,9 @@ export default async function initScene() {
   return () => {
     cancelAnimationFrame(animateHandle);
     window.onresize = null;
-    scene.clear();
+    camera.clear();
     renderer.dispose();
     controls.dispose();
+    scene.clear();
   };
 }

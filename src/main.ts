@@ -5,8 +5,9 @@ import textures from "./scenes/textures";
 import lighting from "./scenes/lighting";
 import shadows from "./scenes/shadows";
 import solarSystem from "./scenes/solar-system";
+import models from "./scenes/models";
 
-const scenes: { [key: string]: () => void } = {
+const scenes: { [key: string]: () => Promise<() => void> } = {
   "hello-world": helloWorld,
   geometry,
   materials,
@@ -14,18 +15,19 @@ const scenes: { [key: string]: () => void } = {
   lighting,
   shadows,
   "Solar System": solarSystem,
+  models,
 };
 
 let currentSceneCleanup: (() => void) | null = null;
 
-function loadScene(scene: string) {
+async function loadScene(scene: string) {
   if (currentSceneCleanup) {
     currentSceneCleanup();
   }
 
   const initScene = scenes[scene];
   if (initScene) {
-    initScene();
+    currentSceneCleanup = await initScene();
   }
   document.title = `Three.js - ${scene}`;
 }
@@ -64,4 +66,4 @@ sceneListToggle.addEventListener("click", () => {
 });
 
 // Load default scene
-loadScene("Solar System");
+loadScene("models");

@@ -516,6 +516,7 @@ function createCamera() {
   const aspectRatio = window.innerWidth / window.innerHeight;
   const camera = new THREE.PerspectiveCamera(45, aspectRatio, 1, 10000);
   camera.position.set(-10, 5, 10);
+  // camera.updateProjectionMatrix();
   return camera;
 }
 
@@ -559,8 +560,7 @@ function addAxesHelper(camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
   axesCamera.position.set(0, 5, 10);
   axesCamera.lookAt(axesHelper.position);
 
-  // * return the animation function
-  return () => {
+  const updateAxesHelper = () => {
     // * Synchronize the AxesHelper's camera with the main camera
     axesCamera.position.copy(camera.position);
     axesCamera.quaternion.copy(camera.quaternion);
@@ -576,6 +576,15 @@ function addAxesHelper(camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
     renderer.setViewport(0, 0, width, height);
     renderer.autoClear = true;
   };
+
+  const cleanAxesHelper = () => {
+    axesScene.clear();
+    axesScene.clear();
+    axesCamera.clear();
+  };
+
+  // * return the animation function
+  return { updateAxesHelper, cleanAxesHelper };
 }
 
 function handleResize(
@@ -684,7 +693,7 @@ export default async function initScene() {
   };
 
   // * Axis Helper
-  const updateAxesHelper = addAxesHelper(camera, renderer);
+  const { updateAxesHelper } = addAxesHelper(camera, renderer);
 
   // * Animation
   const animateClock = new THREE.Clock();
@@ -717,8 +726,10 @@ export default async function initScene() {
   return () => {
     cancelAnimationFrame(animateHandle);
     window.onresize = null;
-    scene.clear();
+    camera.clear();
     renderer.dispose();
     controls.dispose();
+    pane.dispose();
+    scene.clear();
   };
 }

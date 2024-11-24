@@ -51,6 +51,7 @@ function createCamera() {
 function createRenderer(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
+
   return renderer;
 }
 
@@ -113,7 +114,7 @@ function oscillationMeshSize(
   mesh.scale[axis] = newScale;
 }
 
-export default function initScene() {
+export default async function initScene() {
   const scene = createScene();
 
   const cube1 = createCube({ wireframe: true });
@@ -172,6 +173,7 @@ export default function initScene() {
     cancelAnimationFrame(animateHandle);
     window.onresize = null;
     scene.clear();
+    camera.clear();
     renderer.dispose();
     controls.dispose();
   };

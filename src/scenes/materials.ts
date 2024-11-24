@@ -333,7 +333,7 @@ function handleResize(
   };
 }
 
-export default function initScene() {
+export default async function initScene() {
   const scene = createScene();
   const pane = new Pane();
   const material = createPhysicalMaterial(pane);
@@ -389,7 +389,9 @@ export default function initScene() {
     cancelAnimationFrame(animateHandle);
     window.onresize = null;
     scene.clear();
+    camera.clear();
     renderer.dispose();
     controls.dispose();
+    pane.dispose();
   };
 }
