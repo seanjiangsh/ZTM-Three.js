@@ -400,10 +400,16 @@ function createCamera() {
   return camera;
 }
 
-function createRenderer(canvas: HTMLCanvasElement) {
+function createRenderer() {
+  const canvas = document.createElement("canvas");
+  canvas.className = "threejs";
+  document.body.appendChild(canvas);
+
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  return renderer;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  return { canvas, renderer };
 }
 
 function createControls(
@@ -590,8 +596,7 @@ export default async function initScene() {
   scene.add(plane, group);
 
   const camera = createCamera();
-  const canvas = document.querySelector("canvas.threejs") as HTMLCanvasElement;
-  const renderer = createRenderer(canvas);
+  const { canvas, renderer } = createRenderer();
   const controls = createControls(camera, renderer);
   const updateCtrlAndRender = () => {
     controls.update();
@@ -637,5 +642,6 @@ export default async function initScene() {
     controls.dispose();
     pane.dispose();
     scene.clear();
+    canvas.remove();
   };
 }

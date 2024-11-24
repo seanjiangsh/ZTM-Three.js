@@ -6,6 +6,7 @@ import lighting from "./scenes/lighting";
 import shadows from "./scenes/shadows";
 import solarSystem from "./scenes/solar-system";
 import models from "./scenes/models";
+import portfolio from "./scenes/portfolio/index";
 
 const scenes: { [key: string]: () => Promise<() => void> } = {
   "hello-world": helloWorld,
@@ -16,6 +17,7 @@ const scenes: { [key: string]: () => Promise<() => void> } = {
   shadows,
   "Solar System": solarSystem,
   models,
+  portfolio,
 };
 
 let currentSceneCleanup: (() => void) | null = null;
@@ -27,6 +29,7 @@ async function loadScene(scene: string) {
 
   const initScene = scenes[scene];
   if (initScene) {
+    // console.log("Loading scene:", scene, initScene, scenes);
     currentSceneCleanup = await initScene();
   }
   document.title = `Three.js - ${scene}`;
@@ -66,4 +69,4 @@ sceneListToggle.addEventListener("click", () => {
 });
 
 // Load default scene
-loadScene("models");
+loadScene("portfolio");

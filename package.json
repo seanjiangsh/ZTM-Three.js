@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "three": "^0.170.0",
-    "tweakpane": "^4.0.5"
+    "tweakpane": "^4.0.5",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@tweakpane/core": "^2.0.5",

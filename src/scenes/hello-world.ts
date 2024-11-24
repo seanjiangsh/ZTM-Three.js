@@ -48,11 +48,16 @@ function createCamera() {
   return camera;
 }
 
-function createRenderer(canvas: HTMLCanvasElement) {
+function createRenderer() {
+  const canvas = document.createElement("canvas");
+  canvas.className = "threejs";
+  document.body.appendChild(canvas);
+
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  return renderer;
+  return { canvas, renderer };
 }
 
 function createControls(
@@ -136,8 +141,7 @@ export default async function initScene() {
   scene.add(cubeGroup);
 
   const camera = createCamera();
-  const canvas = document.querySelector("canvas.threejs") as HTMLCanvasElement;
-  const renderer = createRenderer(canvas);
+  const { canvas, renderer } = createRenderer();
   const controls = createControls(camera, renderer);
 
   const animateClock = new THREE.Clock();
@@ -176,5 +180,6 @@ export default async function initScene() {
     camera.clear();
     renderer.dispose();
     controls.dispose();
+    canvas.remove();
   };
 }

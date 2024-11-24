@@ -179,11 +179,16 @@ function createCamera() {
   return camera;
 }
 
-function createRenderer(canvas: HTMLCanvasElement) {
+function createRenderer() {
+  const canvas = document.createElement("canvas");
+  canvas.className = "threejs";
+  document.body.appendChild(canvas);
+
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  return renderer;
+  return { canvas, renderer };
 }
 
 function createControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
@@ -191,7 +196,7 @@ function createControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.25;
   controls.maxDistance = 200;
-  controls.minDistance = 20;
+  // controls.minDistance = 20;
   return controls;
 }
 
@@ -304,8 +309,7 @@ export default async function initScene() {
   const camera = createCamera();
 
   // * Renderer
-  const canvas = document.querySelector("canvas.threejs") as HTMLCanvasElement;
-  const renderer = createRenderer(canvas);
+  const { canvas, renderer } = createRenderer();
   renderer.shadowMap.enabled = true;
 
   // * Controls
@@ -341,5 +345,6 @@ export default async function initScene() {
     controls.dispose();
     pane.dispose();
     scene.clear();
+    canvas.remove();
   };
 }
