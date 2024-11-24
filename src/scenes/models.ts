@@ -32,29 +32,30 @@ function createLoadingManager() {
   const loadingManager = new THREE.LoadingManager();
 
   // Get references to the loading screen, progress bar, and progress text elements
-  const loadingScreen = document.getElementById("loading-screen");
+  const overlay = document.getElementById("overlay");
   const progressBar = document.getElementById("progress-bar");
-  const progressText = document.getElementById("progress-text");
+  const progressPercentage = document.getElementById("progress-percentage");
 
   // Initialize counts
   const resources = getResources();
 
   loadingManager.onStart = () => {
-    if (progressText) {
-      progressText.textContent = "0%";
+    if (progressPercentage) {
+      progressPercentage.textContent = "0%";
     }
-    if (loadingScreen) {
-      loadingScreen.style.display = "flex";
+    if (overlay) {
+      overlay.style.display = "flex";
     }
   };
 
   loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
     const progress = (itemsLoaded / itemsTotal) * 100;
+    const percentage = Math.round(progress);
     if (progressBar) {
-      progressBar.style.width = `${progress}%`;
+      progressBar.style.width = `${percentage}%`;
     }
-    if (progressText) {
-      progressText.textContent = `${Math.round(progress)}%`;
+    if (progressPercentage) {
+      progressPercentage.textContent = percentage.toString();
     }
     console.log(`Loading: ${url} (${itemsLoaded}/${itemsTotal}), ${progress}%`);
   };
@@ -63,12 +64,13 @@ function createLoadingManager() {
     if (progressBar) {
       progressBar.style.width = `100%`;
     }
-    if (progressText) {
-      progressText.textContent = `100%`;
+    if (overlay) {
+      overlay.classList.add("fade");
     }
+
     setTimeout(() => {
-      if (loadingScreen) {
-        loadingScreen.style.display = "none";
+      if (overlay) {
+        overlay.style.display = "none";
       }
     }, 500);
   };
@@ -346,5 +348,10 @@ export default async function initScene() {
     pane.dispose();
     scene.clear();
     canvas.remove();
+
+    const progressPercentage = document.getElementById("progress-percentage");
+    if (progressPercentage) {
+      progressPercentage.textContent = "0";
+    }
   };
 }

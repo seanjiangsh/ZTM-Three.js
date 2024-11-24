@@ -9,11 +9,16 @@
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
-    <div id="loading-screen">
+    <div id="overlay">
       <div id="loader">
+        <div id="progress-text">
+          <h1>
+            Loading Experience... <span id="progress-percentage">0</span>%
+          </h1>
+        </div>
         <div id="progress-bar"></div>
-        <div id="progress-text"></div>
       </div>
+      <button class="start fade-out">START</button>
     </div>
     <div id="scene-list-container">
       <button id="scene-list-toggle">Scenes</button>
