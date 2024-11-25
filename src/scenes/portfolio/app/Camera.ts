@@ -9,6 +9,8 @@ export default class Camera {
   controls!: OrbitControls;
   app: App;
 
+  unsubscribeSize: () => void = () => {};
+
   constructor() {
     this.app = new App();
     this.setInstance();
@@ -29,7 +31,7 @@ export default class Camera {
   }
 
   private setResizeListener() {
-    sizeStore.subscribe(({ aspect }) => {
+    this.unsubscribeSize = sizeStore.subscribe(({ aspect }) => {
       this.instance.aspect = aspect;
       this.instance.updateProjectionMatrix();
     });
@@ -42,5 +44,6 @@ export default class Camera {
   dispose() {
     this.controls.dispose();
     this.instance.clear();
+    this.unsubscribeSize();
   }
 }

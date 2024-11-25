@@ -4,7 +4,7 @@ import * as RAPIER from "@dimforge/rapier3d";
 import App from "../App.js";
 import { appStateStore } from "../utils/Store.js";
 
-type RigidBodyType = "dynamic" | "fixed";
+type RigidBodyType = "dynamic" | "fixed" | "kinematic";
 type ColliderType = "cuboid" | "ball" | "trimesh";
 
 /**
@@ -14,14 +14,10 @@ type ColliderType = "cuboid" | "ball" | "trimesh";
  */
 export default class Physics {
   app: App;
-  world!: RAPIER.World;
-  rapier!: typeof RAPIER;
-  rapierLoaded: boolean = false;
-  rigidBody!: RAPIER.RigidBody;
-  meshMap: Map<THREE.Mesh, RAPIER.RigidBody>;
-
-  cubeMesh!: THREE.Mesh;
-  goundMesh!: THREE.Mesh;
+  private rapier!: typeof RAPIER;
+  private rapierWorld!: RAPIER.World;
+  private rapierLoaded: boolean = false;
+  private meshMap: Map<THREE.Mesh, RAPIER.RigidBody>;
 
   constructor() {
     this.app = new App();
@@ -31,7 +27,7 @@ export default class Physics {
     // setting the physics world
     import("@dimforge/rapier3d").then((RAPIER) => {
       const gravity = { x: 0, y: -9.81, z: 0 };
-      this.world = new RAPIER.World(gravity);
+      this.rapierWorld = new RAPIER.World(gravity);
       this.rapier = RAPIER;
       this.rapierLoaded = true;
       appStateStore.setState({ physicsReady: true });
@@ -46,45 +42,60 @@ export default class Physics {
    */
   add(mesh: THREE.Mesh, type: RigidBodyType, collider: ColliderType) {
     // defining the rigid body type
-    const rigidBodyType =
-      type === "dynamic"
-        ? this.rapier.RigidBodyDesc.dynamic()
-        : this.rapier.RigidBodyDesc.fixed();
-    this.rigidBody = this.world.createRigidBody(rigidBodyType);
+    const { rapier, rapierWorld } = this;
+    const { ColliderDesc, RigidBodyDesc } = rapier;
 
-    // defining the collider type
-    let colliderType;
+    let rigidBodyType;
+    switch (type) {
+      case "dynamic":
+        rigidBodyType = RigidBodyDesc.dynamic();
+        break;
+      case "fixed":
+        rigidBodyType = RigidBodyDesc.fixed();
+        break;
+      case "kinematic":
+        rigidBodyType = RigidBodyDesc.kinematicPositionBased();
+        break;
+      default:
+        throw new Error("Invalid rigid body type");
+    }
+    const rigidBody = rapierWorld.createRigidBody(rigidBodyType);
 
     switch (collider) {
       case "cuboid":
-        const dimensions = this.computeCuboidDimensions(mesh);
-        colliderType = this.rapier.ColliderDesc.cuboid(
-          dimensions.x / 2,
-          dimensions.y / 2,
-          dimensions.z / 2
-        );
-        this.world.createCollider(colliderType, this.rigidBody);
+        {
+          const dimensions = this.computeCuboidDimensions(mesh);
+          const type = ColliderDesc.cuboid(
+            dimensions.x / 2,
+            dimensions.y / 2,
+            dimensions.z / 2
+          );
+          rapierWorld.createCollider(type, rigidBody);
+        }
         break;
       case "ball":
-        const radius = this.computeBallDimensions(mesh);
-        colliderType = this.rapier.ColliderDesc.ball(radius);
-        this.world.createCollider(colliderType, this.rigidBody);
+        {
+          const radius = this.computeBallDimensions(mesh);
+          const type = ColliderDesc.ball(radius);
+          rapierWorld.createCollider(type, rigidBody);
+        }
         break;
-      case "trimesh":
+      case "trimesh": {
         const { scaledVertices, indices } = this.computeTrimeshDimensions(mesh);
-        const { ColliderDesc } = this.rapier;
-        colliderType = ColliderDesc.trimesh(scaledVertices, indices);
-        this.world.createCollider(colliderType, this.rigidBody);
+        const type = ColliderDesc.trimesh(scaledVertices, indices);
+        rapierWorld.createCollider(type, rigidBody);
         break;
+      }
     }
 
     // setting the rigid body position and rotation
     const worldPosition = mesh.getWorldPosition(new THREE.Vector3());
     const worldRotation = mesh.getWorldQuaternion(new THREE.Quaternion());
-    this.rigidBody.setTranslation(worldPosition, true);
-    this.rigidBody.setRotation(worldRotation, true);
+    rigidBody.setTranslation(worldPosition, true);
+    rigidBody.setRotation(worldRotation, true);
 
-    this.meshMap.set(mesh, this.rigidBody);
+    this.meshMap.set(mesh, rigidBody);
+    return rigidBody;
   }
 
   /**
@@ -92,7 +103,7 @@ export default class Physics {
    * @param {THREE.Mesh} mesh - The mesh to compute the dimensions for
    * @returns {THREE.Vector3} The dimensions of the cuboid collider
    */
-  computeCuboidDimensions(mesh: THREE.Mesh): THREE.Vector3 {
+  private computeCuboidDimensions(mesh: THREE.Mesh): THREE.Vector3 {
     mesh.geometry.computeBoundingBox();
     const size =
       mesh.geometry.boundingBox?.getSize(new THREE.Vector3()) ||
@@ -107,11 +118,12 @@ export default class Physics {
    * @param {THREE.Mesh} mesh - The mesh to compute the radius for
    * @returns {number} The radius of the sphere collider
    */
-  computeBallDimensions(mesh: THREE.Mesh): number {
+  private computeBallDimensions(mesh: THREE.Mesh): number {
     mesh.geometry.computeBoundingSphere();
     const radius = mesh.geometry.boundingSphere?.radius || 0;
     const worldScale = mesh.getWorldScale(new THREE.Vector3());
-    const maxScale = Math.max(worldScale.x, worldScale.y, worldScale.z);
+    const { x, y, z } = worldScale;
+    const maxScale = Math.max(x, y, z);
     return radius * maxScale;
   }
 
@@ -120,7 +132,7 @@ export default class Physics {
    * @param {THREE.Mesh} mesh - The mesh to compute the scaled vertices and indices for
    * @returns {{scaledVertices: Float32Array, indices: Uint32Array}} The scaled vertices and indices of the trimesh collider
    */
-  computeTrimeshDimensions(mesh: THREE.Mesh) {
+  private computeTrimeshDimensions(mesh: THREE.Mesh) {
     const { attributes, index } = mesh.geometry || {};
     let scaledVertices = new Float32Array();
     let indices = new Uint32Array();
@@ -152,7 +164,7 @@ export default class Physics {
    */
   loop() {
     if (!this.rapierLoaded) return;
-    this.world.step();
+    this.rapierWorld.step();
 
     this.meshMap.forEach((rigidBody, mesh) => {
       // extracting the position and rotation from the rigid body
@@ -163,7 +175,8 @@ export default class Physics {
       const { matrixWorld } = mesh.parent || {};
       if (!matrixWorld) return;
 
-      position.applyMatrix4(new THREE.Matrix4().copy(matrixWorld).invert());
+      const newMatrix = new THREE.Matrix4().copy(matrixWorld).invert();
+      position.applyMatrix4(newMatrix);
 
       // transforming the rotation to the parent mesh's local space
       const inverseParentMatrix = new THREE.Matrix4()

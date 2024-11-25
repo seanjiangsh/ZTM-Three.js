@@ -8,6 +8,8 @@ export default class Renderer {
   app: App;
   sizes = sizeStore.getState();
 
+  unsubscribeSize: () => void = () => {};
+
   constructor() {
     this.app = new App();
     this.setInstance();
@@ -24,10 +26,12 @@ export default class Renderer {
   }
 
   private setResizeListener() {
-    sizeStore.subscribe(({ width, height, pixelRatio }) => {
-      this.instance.setSize(width, height);
-      this.instance.setPixelRatio(pixelRatio);
-    });
+    this.unsubscribeSize = sizeStore.subscribe(
+      ({ width, height, pixelRatio }) => {
+        this.instance.setSize(width, height);
+        this.instance.setPixelRatio(pixelRatio);
+      }
+    );
   }
 
   loop() {
@@ -37,5 +41,6 @@ export default class Renderer {
 
   dispose() {
     this.instance.dispose();
+    this.unsubscribeSize();
   }
 }

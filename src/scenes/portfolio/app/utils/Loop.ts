@@ -23,7 +23,8 @@ export default class Loop {
     const { camera, renderer, world } = this.app;
     camera.loop();
     renderer.loop();
-    world.loop(deltaTime, elapsedTime);
+    world.loop();
+    // world.loop(deltaTime, elapsedTime);
     this.animationFrameId = requestAnimationFrame(() => this.loop());
   }
 

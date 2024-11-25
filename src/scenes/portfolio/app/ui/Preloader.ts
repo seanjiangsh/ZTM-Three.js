@@ -9,6 +9,8 @@ export default class Preloader {
   progressText: HTMLDivElement;
   startButton: HTMLButtonElement;
 
+  unsubscribeAssetStore: () => void = () => {};
+
   constructor() {
     // access to DOM elements
     this.overlay = document.querySelector("#overlay")!;
@@ -18,7 +20,7 @@ export default class Preloader {
     this.progressText = document.querySelector("#progress-percentage")!;
     this.startButton = document.querySelector("button.start")!;
 
-    assetStore.subscribe((state) => {
+    this.unsubscribeAssetStore = assetStore.subscribe((state) => {
       const numOfLoadedAssets = Object.keys(state.loadedAssets).length;
       const numOfAssetsToLoad = state.assetsToLoad.length;
       const progress = (numOfLoadedAssets / numOfAssetsToLoad) * 100;
@@ -33,7 +35,7 @@ export default class Preloader {
     });
   }
 
-  ready() {
+  private ready() {
     this.loader.classList.add("fade-out");
     this.startButton.classList.remove("fade-out");
     this.startButton.classList.add("fade-in");
@@ -56,5 +58,6 @@ export default class Preloader {
     this.loader.classList.remove(...fade);
     this.startButton.classList.remove(...fade);
     this.startButton.classList.add("fade-out");
+    this.unsubscribeAssetStore();
   }
 }

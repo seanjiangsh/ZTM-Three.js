@@ -13,7 +13,7 @@ export default class AssetLoader {
     this.startLoading();
   }
 
-  instantiateLoaders() {
+  private instantiateLoaders() {
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath("/draco/");
     this.gltfLoader = new GLTFLoader();
@@ -21,7 +21,7 @@ export default class AssetLoader {
     this.textureLoader = new THREE.TextureLoader();
   }
 
-  startLoading() {
+  private startLoading() {
     const { assetsToLoad, loadedAssets, addLoadedAsset } =
       assetStore.getState();
     assetsToLoad.forEach((asset: Asset) => {
