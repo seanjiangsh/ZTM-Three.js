@@ -8,3 +8,7 @@ export const sizeStore = createStore(() => {
     pixelRatio: Math.min(window.devicePixelRatio, 2),
   };
 });
+
+export const appStateStore = createStore(() => ({
+  physicsReady: false,
+}));

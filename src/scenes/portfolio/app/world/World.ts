@@ -1,35 +1,31 @@
 import * as THREE from "three";
 
 import App from "../App";
+import Physics from "./Physics";
+import Environment from "./Environments";
+import { appStateStore } from "../utils/Store";
 
 export default class World {
   app: App;
-  cube!: THREE.Group;
+  physics: Physics;
+  environment!: Environment;
 
   constructor() {
     this.app = new App();
-    this.setCube();
+    this.physics = new Physics();
+
+    // create world classes
+    appStateStore.subscribe((state) => {
+      if (state.physicsReady) {
+        console.log("physics ready");
+        this.environment = new Environment();
+      }
+    });
+
+    // this.loop();
   }
 
-  private setCube() {
-    const cube = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    );
-    const edge = new THREE.LineSegments(
-      new THREE.EdgesGeometry(cube.geometry),
-      new THREE.LineBasicMaterial({ color: 0x000000 })
-    );
-    const group = new THREE.Group();
-    group.add(cube);
-    group.add(edge);
-
-    this.cube = group;
-    this.app.scene.add(this.cube);
-  }
-
-  loop() {
-    this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
+  loop(deltaTime: number, elapsedTime: number) {
+    this.physics.loop();
   }
 }

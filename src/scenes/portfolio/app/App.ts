@@ -39,8 +39,8 @@ export default class App {
     this.scene = new THREE.Scene();
 
     // * Loaders
-    this.assetLoader = new AssetLoader();
-    this.preloader = new Preloader();
+    // this.assetLoader = new AssetLoader();
+    // this.preloader = new Preloader();
 
     // * Camera and renderer
     this.camera = new Camera();
@@ -56,8 +56,8 @@ export default class App {
 
   dispose() {
     this.loop.dispose();
-    this.preloader.dispose();
-    this.assetLoader.dispose();
+    // this.preloader.dispose();
+    // this.assetLoader.dispose(); // TODO
     this.resize.dispose();
     this.camera.dispose();
     this.renderer.dispose();
