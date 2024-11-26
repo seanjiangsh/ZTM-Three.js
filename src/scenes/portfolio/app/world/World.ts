@@ -27,12 +27,12 @@ export default class World {
       }
     });
 
-    this.loop();
+    // this.loop();
   }
 
-  loop() {
+  loop(elapsedTime: number, deltaTime: number) {
     this.physics.loop();
-    if (this.character) this.character.loop();
+    if (this.character) this.character.loop(deltaTime);
   }
 
   dispose() {

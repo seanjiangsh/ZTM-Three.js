@@ -14,8 +14,9 @@ type ColliderType = "cuboid" | "ball" | "trimesh";
  */
 export default class Physics {
   app: App;
-  private rapier!: typeof RAPIER;
-  private rapierWorld!: RAPIER.World;
+  rapier!: typeof RAPIER;
+  rapierWorld!: RAPIER.World;
+
   private rapierLoaded: boolean = false;
   private meshMap: Map<THREE.Mesh, RAPIER.RigidBody>;
 
@@ -45,7 +46,7 @@ export default class Physics {
     const { rapier, rapierWorld } = this;
     const { ColliderDesc, RigidBodyDesc } = rapier;
 
-    let rigidBodyType;
+    let rigidBodyType: RAPIER.RigidBodyDesc;
     switch (type) {
       case "dynamic":
         rigidBodyType = RigidBodyDesc.dynamic();

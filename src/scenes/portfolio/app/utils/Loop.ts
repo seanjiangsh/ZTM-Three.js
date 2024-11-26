@@ -19,17 +19,18 @@ export default class Loop {
   loop() {
     const elapsedTime = this.clock.getElapsedTime();
     const deltaTime = elapsedTime - this.prviousElapsedTime;
+    this.prviousElapsedTime = elapsedTime;
 
     const { camera, renderer, world } = this.app;
     camera.loop();
     renderer.loop();
-    world.loop();
-    // world.loop(deltaTime, elapsedTime);
+    world.loop(elapsedTime, deltaTime);
     this.animationFrameId = requestAnimationFrame(() => this.loop());
   }
 
   dispose() {
     cancelAnimationFrame(this.animationFrameId);
     this.prviousElapsedTime = 0;
+    this.clock.stop();
   }
 }

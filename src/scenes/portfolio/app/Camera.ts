@@ -21,7 +21,7 @@ export default class Camera {
   private setInstance() {
     const { aspect } = sizeStore.getState();
     this.instance = new THREE.PerspectiveCamera(35, aspect);
-    this.instance.position.set(100, 100, 100);
+    this.instance.position.set(-80, 50, 80);
   }
 
   private setControls() {
