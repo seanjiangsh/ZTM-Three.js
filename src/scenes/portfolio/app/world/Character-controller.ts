@@ -8,13 +8,13 @@ export default class CharacterController {
   app: App;
 
   rigidBody!: RAPIER.RigidBody;
-  collider!: RAPIER.Collider;
-  characterController!: RAPIER.KinematicCharacterController;
+  private collider!: RAPIER.Collider;
+  private characterController!: RAPIER.KinematicCharacterController;
 
-  forward: boolean = false;
-  backward: boolean = false;
-  left: boolean = false;
-  right: boolean = false;
+  private forward: boolean = false;
+  private backward: boolean = false;
+  private left: boolean = false;
+  private right: boolean = false;
 
   unsubscribeInput: () => void = () => {};
 

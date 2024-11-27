@@ -4,6 +4,9 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 
 import assetStore, { Asset } from "./Asset-store.js";
 
+const { VITE_BASE } = import.meta.env;
+const base = VITE_BASE || "";
+
 export default class AssetLoader {
   gltfLoader!: GLTFLoader;
   textureLoader!: THREE.TextureLoader;
@@ -15,7 +18,7 @@ export default class AssetLoader {
 
   private instantiateLoaders() {
     const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath("/draco/");
+    dracoLoader.setDecoderPath(`${base}/draco/`);
     this.gltfLoader = new GLTFLoader();
     this.gltfLoader.setDRACOLoader(dracoLoader);
     this.textureLoader = new THREE.TextureLoader();

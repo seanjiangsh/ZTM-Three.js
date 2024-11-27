@@ -1,7 +1,7 @@
 import { inputStore } from "../utils/Store";
 
 export default class InputController {
-  private keyPressed: { [keyCode: string]: boolean } = {};
+  private keyPressed: { [keyCode: string]: boolean };
 
   constructor() {
     this.keyPressed = {};

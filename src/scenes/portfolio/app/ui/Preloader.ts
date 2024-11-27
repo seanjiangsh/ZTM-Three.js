@@ -53,7 +53,7 @@ export default class Preloader {
       { once: true }
     );
 
-    if (import.meta.env.MODE === "development") this.startButton.click();
+    if (import.meta.env.DEV) this.startButton.click();
   }
 
   dispose() {

@@ -3,6 +3,7 @@ import Physics from "./Physics";
 import Environment from "./Environments";
 import Character from "./Character";
 import CharacterController from "./Character-controller";
+import AnimationController from "./Animation-controller";
 import { appStateStore } from "../utils/Store";
 
 export default class World {
@@ -11,6 +12,7 @@ export default class World {
   environment!: Environment;
   character: Character | null = null;
   characterController: CharacterController | null = null;
+  animationController: AnimationController | null = null;
 
   private unsubscribeAppState: () => void = () => {};
 
@@ -25,17 +27,22 @@ export default class World {
         this.environment = new Environment();
         this.character = new Character();
         this.characterController = new CharacterController();
+        this.animationController = new AnimationController();
       }
     });
   }
 
   loop(elapsedTime: number, deltaTime: number) {
-    const { physics, characterController } = this;
+    const { physics, characterController, animationController } = this;
     physics.loop();
     if (characterController) characterController.loop(deltaTime);
+    if (animationController) animationController.loop(deltaTime);
   }
 
   dispose() {
+    const { characterController, animationController } = this;
+    characterController?.dispose();
+    animationController?.dispose();
     this.unsubscribeAppState();
   }
 }

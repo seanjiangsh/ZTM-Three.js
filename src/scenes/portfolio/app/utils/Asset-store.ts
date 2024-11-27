@@ -8,7 +8,10 @@ export type Asset = {
   type: "texture" | "model";
 };
 
-const models = "models/portfolio";
+const { VITE_BASE } = import.meta.env;
+const base = VITE_BASE || "";
+
+const models = `${base}/models/portfolio`;
 const assetsToLoad: Array<Asset> = [
   {
     id: "avatar",

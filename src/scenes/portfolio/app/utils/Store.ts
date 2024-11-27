@@ -49,7 +49,7 @@ export const appStateStore = createStore<AppState & AppActions>()((set) => ({
 }));
 
 // Define types for input state values and actions
-type InputState = {
+export type InputState = {
   forward: boolean;
   backward: boolean;
   left: boolean;

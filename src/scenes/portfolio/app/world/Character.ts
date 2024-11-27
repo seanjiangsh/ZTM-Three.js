@@ -26,6 +26,9 @@ export default class Character {
 
     // Add avatar to the character
     this.avatar = assetStore.getState().loadedAssets.avatar as GLTF;
+
+    // The animation clips is within avatar
+
     const avatarScene = this.avatar.scene;
     avatarScene.rotateY(Math.PI);
     avatarScene.position.setY(-2.5);
