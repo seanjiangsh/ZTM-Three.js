@@ -1,4 +1,5 @@
-import assetStore from "../utils/AssetStore";
+import assetStore from "../utils/Asset-store";
+import { appStateStore } from "../utils/Store";
 
 const fade = ["fade-out", "fade-in"];
 
@@ -30,6 +31,7 @@ export default class Preloader {
       this.progressText.textContent = percentage.toString();
 
       if (progress === 100) {
+        appStateStore.setState({ assetsReady: true });
         setTimeout(() => this.ready(), 1200);
       }
     });
@@ -50,6 +52,8 @@ export default class Preloader {
       },
       { once: true }
     );
+
+    if (import.meta.env.MODE === "development") this.startButton.click();
   }
 
   dispose() {

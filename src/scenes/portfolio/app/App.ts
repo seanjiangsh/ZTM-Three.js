@@ -3,14 +3,15 @@ import * as THREE from "three";
 import Camera from "./Camera";
 import Renderer from "./Renderer";
 
-import AssetLoader from "./utils/AssetLoader";
+import AssetLoader from "./utils/Asset-loader";
 import Preloader from "./ui/Preloader";
 
-import InputController from "./ui/InputController";
+import InputController from "./ui/Input-controller";
 import World from "./world/World";
 
 import Resize from "./utils/Resize";
 import Loop from "./utils/Loop";
+import { sizeStore, appStateStore, inputStore } from "./utils/Store";
 
 let instance: App | null = null;
 
@@ -42,8 +43,8 @@ export default class App {
     this.scene = new THREE.Scene();
 
     // * Loaders
-    // this.assetLoader = new AssetLoader();
-    // this.preloader = new Preloader();
+    this.assetLoader = new AssetLoader();
+    this.preloader = new Preloader();
 
     // * Camera and renderer
     this.camera = new Camera();
@@ -60,8 +61,8 @@ export default class App {
 
   dispose() {
     this.loop.dispose();
-    // this.preloader.dispose();
-    // this.assetLoader.dispose(); // TODO
+    this.preloader.dispose();
+    this.assetLoader.dispose();
     this.resize.dispose();
     this.camera.dispose();
     this.renderer.dispose();
@@ -70,5 +71,9 @@ export default class App {
     this.scene.clear();
     this.canvas.remove();
     instance = null;
+
+    sizeStore.getState().reset();
+    appStateStore.getState().reset();
+    inputStore.getState().reset();
   }
 }

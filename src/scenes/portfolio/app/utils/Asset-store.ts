@@ -8,42 +8,31 @@ export type Asset = {
   type: "texture" | "model";
 };
 
-const solarSystem = "textures/solar-system";
+const models = "models/portfolio";
 const assetsToLoad: Array<Asset> = [
   {
-    path: `${solarSystem}/2k_earth_daymap.jpg`,
-    id: "earth",
-    type: "texture",
-  },
-  {
-    path: `${solarSystem}/2k_mars.jpg`,
-    id: "mars",
-    type: "texture",
-  },
-  {
-    path: `${solarSystem}/2k_mercury.jpg`,
-    id: "mercury",
-    type: "texture",
-  },
-  {
-    path: `${solarSystem}/2k_sun.jpg`,
-    id: "sun",
-    type: "texture",
+    id: "avatar",
+    path: `${models}/avatar.glb`,
+    type: "model",
   },
 ];
 
-export type LoadedAsset = THREE.Texture | GLTF;
-export type AssetStoreState = {
+type LoadedAsset = THREE.Texture | GLTF;
+type AssetStoreState = {
   assetsToLoad: Array<Asset>;
   loadedAssets: { [key: string]: LoadedAsset };
   addLoadedAsset: (asset: LoadedAsset, id: string) => void;
 };
+type AssetActions = {
+  reset: () => void;
+};
 
-const assetStore = createStore<AssetStoreState>((set) => ({
+const assetStore = createStore<AssetStoreState & AssetActions>((set) => ({
   assetsToLoad,
   loadedAssets: {},
   addLoadedAsset: (asset, id) =>
     set((state) => ({ loadedAssets: { ...state.loadedAssets, [id]: asset } })),
+  reset: () => set({ assetsToLoad, loadedAssets: {} }),
 }));
 
 export default assetStore;

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 
-import assetStore, { Asset } from "./AssetStore.js";
+import assetStore, { Asset } from "./Asset-store.js";
 
 export default class AssetLoader {
   gltfLoader!: GLTFLoader;
@@ -33,6 +33,6 @@ export default class AssetLoader {
   }
 
   dispose() {
-    assetStore.setState({ loadedAssets: {} });
+    assetStore.getState().reset();
   }
 }
