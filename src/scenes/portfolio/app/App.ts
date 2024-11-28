@@ -11,6 +11,7 @@ import World from "./world/World";
 
 import Resize from "./utils/Resize";
 import Loop from "./utils/Loop";
+import GUI from "./utils/GUI";
 import { sizeStore, appStateStore, inputStore } from "./utils/Store";
 
 let instance: App | null = null;
@@ -30,6 +31,8 @@ export default class App {
 
   resize!: Resize;
   loop!: Loop;
+
+  gui!: GUI;
 
   constructor() {
     if (instance) return instance;
@@ -57,6 +60,9 @@ export default class App {
     // * Utils
     this.resize = new Resize();
     this.loop = new Loop();
+
+    // * Debug GUI
+    // this.gui = new GUI();
   }
 
   dispose() {

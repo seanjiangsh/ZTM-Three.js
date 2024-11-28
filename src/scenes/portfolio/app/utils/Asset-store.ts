@@ -18,6 +18,11 @@ const assetsToLoad: Array<Asset> = [
     path: `${models}/avatar.glb`,
     type: "model",
   },
+  {
+    id: "environment",
+    path: `${models}/environment.glb`,
+    type: "model",
+  },
 ];
 
 type LoadedAsset = THREE.Texture | GLTF;

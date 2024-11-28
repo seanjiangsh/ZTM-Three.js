@@ -11,9 +11,15 @@ export default class Character {
 
   constructor() {
     this.app = new App();
+    this.avatar = assetStore.getState().loadedAssets.avatar as GLTF;
+    this.instantiateCharacter();
+  }
 
-    // Create a character and add it to the scene
-    const geometry = new THREE.BoxGeometry(2, 5, 2);
+  instantiateCharacter() {
+    // create character and add to scene
+    const { scene } = this.app;
+
+    const geometry = new THREE.BoxGeometry(0.6, 2, 0.6);
     const material = new THREE.MeshStandardMaterial({
       color: 0x00ff00,
       wireframe: true,
@@ -22,18 +28,15 @@ export default class Character {
     const instance = new THREE.Mesh(geometry, material);
     instance.position.set(0, 4, 0);
     this.instance = instance;
-    this.app.scene.add(instance);
 
-    // Add avatar to the character
-    this.avatar = assetStore.getState().loadedAssets.avatar as GLTF;
+    // add avatar to character
+    const avatar = this.avatar.scene;
+    avatar.rotation.y = Math.PI;
+    avatar.position.y = -1;
+    avatar.castShadow = true;
 
-    // The animation clips is within avatar
-
-    const avatarScene = this.avatar.scene;
-    avatarScene.rotateY(Math.PI);
-    avatarScene.position.setY(-2.5);
-    avatarScene.scale.setScalar(3);
-    this.instance.add(avatarScene);
+    instance.add(avatar);
+    scene.add(instance);
   }
 
   dispose() {

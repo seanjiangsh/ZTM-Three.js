@@ -20,9 +20,13 @@ export default class Renderer {
     const { canvas } = this.app;
     const { width, height, pixelRatio } = this.sizes;
 
-    this.instance = new THREE.WebGLRenderer({ canvas, antialias: true });
-    this.instance.setSize(width, height);
-    this.instance.setPixelRatio(pixelRatio);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(pixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.8;
+    this.instance = renderer;
   }
 
   private setResizeListener() {

@@ -62,7 +62,7 @@ export default class AnimationController {
 
     if (!currentAction) return;
     // the 3rd args "warp: boolean" warp parameter. When set to false, the crossfade will not warp the time scale of the animations. When set to true, it will warp the time scale to synchronize the animations.
-    action.crossFadeFrom(currentAction, 0.3, true);
+    action.crossFadeFrom(currentAction, 0.2, true);
   }
 
   loop(deltaTime: number) {

@@ -43,8 +43,8 @@ export default class CharacterController {
     const rigidBody = rapierWorld.createRigidBody(ridgeBodyType);
     this.rigidBody = rigidBody;
 
-    // Create a cuboid collider
-    const colliderType = rapier.ColliderDesc.cuboid(1, 2.5, 1);
+    // Create a cuboid collider (half of character size)
+    const colliderType = rapier.ColliderDesc.cuboid(0.3, 1, 0.3);
     this.collider = rapierWorld.createCollider(colliderType, rigidBody);
 
     // Set rigid body position to character position
@@ -61,7 +61,7 @@ export default class CharacterController {
     characterController.setApplyImpulsesToDynamicBodies(true);
 
     // Set auto step (climbing stairs, current stair height is 1)
-    characterController.enableAutostep(3, 0.1, false);
+    characterController.enableAutostep(1, 0.1, false);
 
     // Enable stick to ground (different from the gravity effect)
     characterController.enableSnapToGround(1);
@@ -101,7 +101,8 @@ export default class CharacterController {
     // normalize movement (diagonal movement is not faster)
     movement.normalize();
     // sync movement speed with frame rate (25 is arbitrary ratio)
-    movement.multiplyScalar(deltaTime * 25);
+    // movement.multiplyScalar(deltaTime * 25);
+    movement.multiplyScalar(0.1);
     // y=(negative value) will create a gravity effect
     movement.y = -1;
 
@@ -114,7 +115,7 @@ export default class CharacterController {
       .add(characterController.computedMovement());
 
     rigidBody.setNextKinematicTranslation(newPosition);
-    character.position.lerp(rigidBody.translation(), 0.2);
+    character.position.lerp(rigidBody.translation(), 0.1);
   }
 
   dispose() {

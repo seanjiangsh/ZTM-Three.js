@@ -1,47 +1,142 @@
 import * as THREE from "three";
+import { GLTF } from "three/addons/loaders/GLTFLoader.js";
 
 import App from "../App.js";
+import assetStore from "../utils/Asset-store.js";
 
 export default class Environment {
   app: App;
+  assetStore: ReturnType<typeof assetStore.getState>;
+  environment!: GLTF;
   directionalLight!: THREE.DirectionalLight;
-  groundMesh!: THREE.Mesh;
 
   constructor() {
     this.app = new App();
 
+    this.assetStore = assetStore.getState();
+    this.environment = this.assetStore.loadedAssets.environment as GLTF;
+
     this.loadEnvironment();
+    this.addLights();
+
     this.addGround();
     // this.addWalls();
-    this.addStairs();
-    this.addMeshes();
+    // this.addStairs();
+    // this.addMeshes();
     // this.addPhysicDemoMeshes();
   }
 
   private loadEnvironment() {
-    // lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-    this.app.scene.add(ambientLight);
+    const { app, environment } = this;
+    const { scene, world, gui } = app;
+    const { physics } = world;
 
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    this.directionalLight.position.set(1, 1, 1);
-    this.directionalLight.castShadow = true;
-    this.app.scene.add(this.directionalLight);
+    const envScene = environment.scene;
+    envScene.position.set(-4.8, 0, -7.4);
+    envScene.rotation.set(0, -0.6, 0);
+    envScene.scale.setScalar(1.3);
+
+    const physicalObjects = [
+      "trees",
+      "terrain",
+      "rocks",
+      "stairs",
+      "gates",
+      "floor",
+      "bushes",
+    ];
+
+    const shadowCasters = [
+      "trees",
+      "terrain",
+      "rocks",
+      "stairs",
+      "gates",
+      "bushes",
+    ];
+
+    const shadowReceivers = ["floor", "terrain"];
+
+    // Loop through top level children of the environment scene (all of the named objects in blender)
+    for (const child of envScene.children) {
+      const { name } = child;
+      // console.log({ name, child });
+
+      // Check if the name of the object contains any of the strings in the physicalObjects array
+      const isPhysicalObject = physicalObjects.some((keyword) =>
+        name.includes(keyword)
+      );
+
+      // If the object is a physical object, loop through all of the children meshes and add them to the physics world
+      if (isPhysicalObject) {
+        child.traverse((obj) => {
+          if (obj instanceof THREE.Mesh) {
+            physics.add(obj, "fixed", "cuboid");
+          }
+        });
+      }
+
+      const isShadowCaster = shadowCasters.some((keyword) =>
+        name.includes(keyword)
+      );
+      if (isShadowCaster) {
+        child.traverse((obj) => {
+          if (obj instanceof THREE.Mesh) {
+            obj.castShadow = true;
+          }
+        });
+      }
+
+      const isShadowReceiver = shadowReceivers.some((keyword) =>
+        name.includes(keyword)
+      );
+      if (isShadowReceiver) {
+        child.traverse((obj) => {
+          if (obj instanceof THREE.Mesh) {
+            obj.receiveShadow = true;
+          }
+        });
+      }
+    }
+
+    scene.add(envScene);
+  }
+
+  addLights() {
+    const { scene } = this.app;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    const { shadow } = directionalLight;
+    directionalLight.position.set(1, 1, 1);
+    directionalLight.castShadow = true;
+    shadow.camera.top = 30;
+    shadow.camera.right = 30;
+    shadow.camera.left = -30;
+    shadow.camera.bottom = -30;
+    shadow.bias = -0.002;
+    shadow.normalBias = 0.072;
+    this.directionalLight = directionalLight;
+    scene.add(directionalLight);
   }
 
   private addGround() {
-    const groundGeometry = new THREE.BoxGeometry(100, 1, 100);
+    const size = 9999;
+    const groundGeometry = new THREE.BoxGeometry(size, 0.01, size);
     const groundMaterial = new THREE.MeshStandardMaterial({
       color: "turquoise",
     });
-    this.groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    groundMesh.position.set(0, -0.01, 0);
 
     const {
       scene,
       world: { physics },
     } = this.app;
-    scene.add(this.groundMesh);
-    physics.add(this.groundMesh, "fixed", "cuboid");
+    scene.add(groundMesh);
+    physics.add(groundMesh, "fixed", "cuboid");
   }
 
   private addWalls() {
