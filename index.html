@@ -9,6 +9,7 @@
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
+    <!-- Loading splash and progress -->
     <div id="overlay">
       <div id="loader">
         <div id="progress-text">
@@ -20,6 +21,17 @@
       </div>
       <button class="start fade-out">START</button>
     </div>
+    <!-- Extra about me content -->
+    <div id="myModal" class="modal">
+      <div class="modal-wrapper">
+        <div class="modal-content">
+          <h1 id="modalTitle">Modal Title</h1>
+          <p id="modalDescription">Modal Description</p>
+        </div>
+        <span class="close">Close</span>
+      </div>
+    </div>
+    <!-- Scene switch list -->
     <div id="scene-list-container">
       <button id="scene-list-toggle">Scenes</button>
       <ul id="scene-list" />

@@ -2,13 +2,16 @@ import * as THREE from "three";
 import { GLTF } from "three/addons/loaders/GLTFLoader.js";
 
 import App from "../App.js";
+import Portal from "./Portal.js";
+import ModalContentProvider from "../ui/Model-content-provider.js";
 import assetStore from "../utils/Asset-store.js";
 
 export default class Environment {
   app: App;
-  assetStore: ReturnType<typeof assetStore.getState>;
-  environment!: GLTF;
-  directionalLight!: THREE.DirectionalLight;
+
+  private assetStore: ReturnType<typeof assetStore.getState>;
+  private environment!: GLTF;
+  private portals!: Array<Portal>;
 
   constructor() {
     this.app = new App();
@@ -16,10 +19,11 @@ export default class Environment {
     this.assetStore = assetStore.getState();
     this.environment = this.assetStore.loadedAssets.environment as GLTF;
 
+    this.addGround();
+
     this.loadEnvironment();
     this.addLights();
-
-    this.addGround();
+    this.addPortals();
     // this.addWalls();
     // this.addStairs();
     // this.addMeshes();
@@ -28,10 +32,12 @@ export default class Environment {
 
   private loadEnvironment() {
     const { app, environment } = this;
-    const { scene, world, gui } = app;
+    const { scene, world } = app;
     const { physics } = world;
 
     const envScene = environment.scene;
+    scene.add(envScene);
+
     envScene.position.set(-4.8, 0, -7.4);
     envScene.rotation.set(0, -0.6, 0);
     envScene.scale.setScalar(1.3);
@@ -57,49 +63,23 @@ export default class Environment {
 
     const shadowReceivers = ["floor", "terrain"];
 
-    // Loop through top level children of the environment scene (all of the named objects in blender)
     for (const child of envScene.children) {
-      const { name } = child;
-      // console.log({ name, child });
-
-      // Check if the name of the object contains any of the strings in the physicalObjects array
-      const isPhysicalObject = physicalObjects.some((keyword) =>
-        name.includes(keyword)
-      );
-
-      // If the object is a physical object, loop through all of the children meshes and add them to the physics world
-      if (isPhysicalObject) {
-        child.traverse((obj) => {
-          if (obj instanceof THREE.Mesh) {
+      child.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          // Set shadow casting and receiving properties
+          obj.castShadow = shadowCasters.some((keyword) =>
+            child.name.includes(keyword)
+          );
+          obj.receiveShadow = shadowReceivers.some((keyword) =>
+            child.name.includes(keyword)
+          );
+          // Add physics to objects
+          if (physicalObjects.some((keyword) => child.name.includes(keyword))) {
             physics.add(obj, "fixed", "cuboid");
           }
-        });
-      }
-
-      const isShadowCaster = shadowCasters.some((keyword) =>
-        name.includes(keyword)
-      );
-      if (isShadowCaster) {
-        child.traverse((obj) => {
-          if (obj instanceof THREE.Mesh) {
-            obj.castShadow = true;
-          }
-        });
-      }
-
-      const isShadowReceiver = shadowReceivers.some((keyword) =>
-        name.includes(keyword)
-      );
-      if (isShadowReceiver) {
-        child.traverse((obj) => {
-          if (obj instanceof THREE.Mesh) {
-            obj.receiveShadow = true;
-          }
-        });
-      }
+        }
+      });
     }
-
-    scene.add(envScene);
   }
 
   addLights() {
@@ -118,8 +98,24 @@ export default class Environment {
     shadow.camera.bottom = -30;
     shadow.bias = -0.002;
     shadow.normalBias = 0.072;
-    this.directionalLight = directionalLight;
     scene.add(directionalLight);
+  }
+
+  private addPortals() {
+    const { scene } = this.environment;
+    const mesh1 = scene.getObjectByName("portals") as THREE.Mesh;
+    const mesh2 = scene.getObjectByName("portals001") as THREE.Mesh;
+    const mesh3 = scene.getObjectByName("portals002") as THREE.Mesh;
+
+    const contentProvider = new ModalContentProvider();
+    const content1 = contentProvider.getModalInfo("aboutMe");
+    const content2 = contentProvider.getModalInfo("projects");
+    const content3 = contentProvider.getModalInfo("contactMe");
+
+    const portal1 = new Portal(mesh1, content1);
+    const portal2 = new Portal(mesh2, content2);
+    const portal3 = new Portal(mesh3, content3);
+    this.portals = [portal1, portal2, portal3];
   }
 
   private addGround() {
@@ -275,5 +271,9 @@ export default class Environment {
       scene.add(mesh);
       physics.add(mesh, "dynamic", collider);
     }
+  }
+
+  loop() {
+    this.portals.forEach((portal) => portal.loop());
   }
 }

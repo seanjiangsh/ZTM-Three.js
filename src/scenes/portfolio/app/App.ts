@@ -6,8 +6,9 @@ import Renderer from "./Renderer";
 import AssetLoader from "./utils/Asset-loader";
 import Preloader from "./ui/Preloader";
 
-import InputController from "./ui/Input-controller";
 import World from "./world/World";
+import InputController from "./ui/Input-controller";
+import ModalManager from "./ui/Model-manager";
 
 import Resize from "./utils/Resize";
 import Loop from "./utils/Loop";
@@ -61,7 +62,7 @@ export default class App {
     this.resize = new Resize();
     this.loop = new Loop();
 
-    // * Debug GUI
+    // * Tweakpane GUI
     // this.gui = new GUI();
   }
 

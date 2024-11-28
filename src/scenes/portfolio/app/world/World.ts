@@ -33,7 +33,9 @@ export default class World {
   }
 
   loop(elapsedTime: number, deltaTime: number) {
-    const { physics, characterController, animationController } = this;
+    const { physics, environment } = this;
+    const { characterController, animationController } = this;
+    if (environment) environment.loop();
     if (characterController) characterController.loop(deltaTime);
     if (animationController) animationController.loop(deltaTime);
     physics.loop();
