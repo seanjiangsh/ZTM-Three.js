@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
 import App from "../App";
-import { Content } from "../ui/Model-content-provider";
-import ModalManager from "../ui/Model-manager";
+import { Content } from "../ui/Modal-content-provider";
+import ModalManager from "../ui/Modal-manager";
 
 export default class Portal {
   app: App;
@@ -47,8 +47,7 @@ export default class Portal {
     const isNear = distance < 1;
     if (isNear) {
       if (!prevIsNear) {
-        const { title, description } = modalContent;
-        modalManager.openModal(title, description);
+        modalManager.openModal(modalContent);
         mesh.material = portalNearMaterial;
         // console.log("open modal");
       }

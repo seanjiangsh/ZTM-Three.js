@@ -8,7 +8,7 @@ import Preloader from "./ui/Preloader";
 
 import World from "./world/World";
 import InputController from "./ui/Input-controller";
-import ModalManager from "./ui/Model-manager";
+import ModalManager from "./ui/Modal-manager";
 
 import Resize from "./utils/Resize";
 import Loop from "./utils/Loop";

@@ -34,6 +34,12 @@ export default class Character {
     avatar.rotation.y = Math.PI;
     avatar.position.y = -1;
     avatar.castShadow = true;
+    avatar.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
 
     instance.add(avatar);
     scene.add(instance);

@@ -225,5 +225,10 @@ button.start {
 }
 
 .modal p {
+  display: none;
   font-weight: 300;
+}
+
+.modal a {
+  display: none;
 }

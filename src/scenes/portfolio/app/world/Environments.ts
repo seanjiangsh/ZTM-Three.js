@@ -3,7 +3,7 @@ import { GLTF } from "three/addons/loaders/GLTFLoader.js";
 
 import App from "../App.js";
 import Portal from "./Portal.js";
-import ModalContentProvider from "../ui/Model-content-provider.js";
+import ModalContentProvider from "../ui/Modal-content-provider.js";
 import assetStore from "../utils/Asset-store.js";
 
 export default class Environment {
@@ -92,10 +92,10 @@ export default class Environment {
     const { shadow } = directionalLight;
     directionalLight.position.set(1, 1, 1);
     directionalLight.castShadow = true;
-    shadow.camera.top = 30;
-    shadow.camera.right = 30;
-    shadow.camera.left = -30;
-    shadow.camera.bottom = -30;
+    shadow.camera.top = 60;
+    shadow.camera.right = 60;
+    shadow.camera.left = -60;
+    shadow.camera.bottom = -60;
     shadow.bias = -0.002;
     shadow.normalBias = 0.072;
     scene.add(directionalLight);
@@ -126,6 +126,7 @@ export default class Environment {
     });
     const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
     groundMesh.position.set(0, -0.01, 0);
+    groundMesh.receiveShadow = true;
 
     const {
       scene,
