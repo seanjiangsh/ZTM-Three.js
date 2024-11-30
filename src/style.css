@@ -179,14 +179,13 @@ button.start {
 
 .modal-content {
   background-color: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
   padding: 20px;
   border-radius: 20px;
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
   font-family: "Poppins", sans-serif;
   margin: 0 auto;
-  color: white;
-  /* Set text color to white within the modal */
+  color: #333;
 }
 
 .close {
@@ -209,6 +208,9 @@ button.start {
   margin-top: 20px;
 }
 
+.close {
+  color: #333;
+}
 .close:hover,
 .close:focus {
   background-color: rgba(255, 255, 255, 0.3);
@@ -216,7 +218,7 @@ button.start {
 
 .modal h1,
 .modal p {
-  margin: 0 0 15px 0;
+  margin: 15px 0 15px 0;
 }
 
 .modal h1 {

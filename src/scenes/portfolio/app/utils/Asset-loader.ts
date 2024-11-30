@@ -10,6 +10,7 @@ const base = VITE_BASE || "";
 export default class AssetLoader {
   gltfLoader!: GLTFLoader;
   textureLoader!: THREE.TextureLoader;
+  cubeTextureLoader!: THREE.CubeTextureLoader;
 
   constructor() {
     this.instantiateLoaders();
@@ -22,6 +23,7 @@ export default class AssetLoader {
     this.gltfLoader = new GLTFLoader();
     this.gltfLoader.setDRACOLoader(dracoLoader);
     this.textureLoader = new THREE.TextureLoader();
+    this.cubeTextureLoader = new THREE.CubeTextureLoader();
   }
 
   private startLoading() {
@@ -29,9 +31,33 @@ export default class AssetLoader {
       assetStore.getState();
     assetsToLoad.forEach((asset: Asset) => {
       // * type only has two possible values: "texture" or "model"
-      const { type, path, id } = asset;
-      const loader = type === "texture" ? this.textureLoader : this.gltfLoader;
-      loader.load(path, (loadedAsset) => addLoadedAsset(loadedAsset, id));
+      const { type, id } = asset;
+      switch (type) {
+        case "texture": {
+          const { path } = asset;
+          this.textureLoader.load(path, (loadedAsset) =>
+            addLoadedAsset(loadedAsset, id)
+          );
+          break;
+        }
+        case "model": {
+          const { path } = asset;
+          this.gltfLoader.load(path, (loadedAsset) =>
+            addLoadedAsset(loadedAsset, id)
+          );
+          break;
+        }
+        case "cubeTexture": {
+          const { paths } = asset;
+          this.cubeTextureLoader.load(paths, (loadedAsset) =>
+            addLoadedAsset(loadedAsset, id)
+          );
+          break;
+        }
+        default: {
+          throw new Error(`Unsupported asset type: ${type}`);
+        }
+      }
     });
   }
 

@@ -17,17 +17,68 @@ export default class Environment {
     this.app = new App();
 
     this.assetStore = assetStore.getState();
-    this.environment = this.assetStore.loadedAssets.environment as GLTF;
+    const { loadedAssets } = this.assetStore;
+    this.environment = loadedAssets.environment as GLTF;
 
     this.addGround();
+    this.addSky();
 
     this.loadEnvironment();
     this.addLights();
+
     this.addPortals();
+
     // this.addWalls();
     // this.addStairs();
     // this.addMeshes();
     // this.addPhysicDemoMeshes();
+  }
+
+  addSky() {
+    const vertexShader = `
+      varying vec3 vWorldPosition;
+      void main() {
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPosition.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `;
+
+    const fragmentShader = `
+      uniform vec3 topColor;
+      uniform vec3 bottomColor;
+      uniform float offset;
+      uniform float exponent;
+      varying vec3 vWorldPosition;
+      void main() {
+        float h = normalize(vWorldPosition + offset).y;
+        gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+      }
+    `;
+
+    const uniforms = {
+      topColor: { value: new THREE.Color(0x0077ff) },
+      bottomColor: { value: new THREE.Color(0xffffff) },
+      offset: { value: 33 },
+      exponent: { value: 0.6 },
+    };
+
+    const skyMaterial = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms,
+      side: THREE.DoubleSide,
+    });
+
+    // Increase the size of the sphere geometry
+    const skyGeometry = new THREE.SphereGeometry(500, 32, 15);
+    const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+
+    const { scene } = this.app;
+    scene.add(sky);
+
+    // Add fog as well
+    scene.fog = new THREE.Fog(0x87ceeb, 15, 100);
   }
 
   private loadEnvironment() {
@@ -123,6 +174,7 @@ export default class Environment {
     const groundGeometry = new THREE.BoxGeometry(size, 0.01, size);
     const groundMaterial = new THREE.MeshStandardMaterial({
       color: "turquoise",
+      // wireframe: true,
     });
     const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
     groundMesh.position.set(0, -0.01, 0);

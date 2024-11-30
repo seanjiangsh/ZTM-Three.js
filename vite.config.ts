@@ -10,4 +10,5 @@ if (process.env.NODE_ENV !== "development") {
 export default {
   base: process.env.VITE_BASE || "/",
   plugins: [wasm(), topLevelAwait()],
+  build: { rollupOptions: { treeshake: false } },
 };
