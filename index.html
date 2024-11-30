@@ -5,10 +5,11 @@
     <link rel="icon" type="image/svg+xml" href="/ZTM-Three.js/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZTM Three.js Course</title>
-    <script type="module" crossorigin src="/ZTM-Three.js/assets/index-CJYbb7fh.js"></script>
-    <link rel="stylesheet" crossorigin href="/ZTM-Three.js/assets/index-D1dmDImu.css">
+    <script type="module" crossorigin src="/ZTM-Three.js/assets/index-D5d5kmBH.js"></script>
+    <link rel="stylesheet" crossorigin href="/ZTM-Three.js/assets/index-DaxsZXmT.css">
   </head>
   <body>
+    <!-- Loading splash and progress -->
     <div id="overlay">
       <div id="loader">
         <div id="progress-text">
@@ -20,6 +21,18 @@
       </div>
       <button class="start fade-out">START</button>
     </div>
+    <!-- Extra about me content -->
+    <div id="myModal" class="modal">
+      <div class="modal-wrapper">
+        <div class="modal-content">
+          <h1 id="modalTitle">Modal Title</h1>
+          <p id="modalDescription">Modal Description</p>
+          <a id="modalLink" href="#" target="_blank">Modal Link</a>
+        </div>
+        <span class="close">Close</span>
+      </div>
+    </div>
+    <!-- Scene switch list -->
     <div id="scene-list-container">
       <button id="scene-list-toggle">Scenes</button>
       <ul id="scene-list" />
