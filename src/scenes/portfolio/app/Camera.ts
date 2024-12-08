@@ -27,6 +27,8 @@ export default class Camera {
   private setControls() {
     this.controls = new OrbitControls(this.instance, this.app.canvas);
     this.controls.enableDamping = true;
+    this.controls.enableRotate = false;
+    this.controls.enableZoom = false;
   }
 
   private setResizeListener() {
@@ -53,8 +55,8 @@ export default class Camera {
     // characterPosition.y += 30; // above the character
     // characterPosition.z += 60; // behind the character
 
-    // same as "position.y += 5; position.z += 20;"
-    const cameraOffset = new THREE.Vector3(0, 5, 20);
+    // same as "position.y += 10; position.z += 15;"
+    const cameraOffset = new THREE.Vector3(0, 10, 15);
     // rotate the camera offset by the character rotation
     cameraOffset.applyQuaternion(characterRotation);
     cameraOffset.add(characterPosition);

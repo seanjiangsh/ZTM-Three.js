@@ -20,5 +20,6 @@ export default class Resize {
 
   dispose() {
     window.removeEventListener("resize", this.setSizes);
+    sizeStore.getState().reset();
   }
 }

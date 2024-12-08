@@ -1,11 +1,23 @@
+import JoystickController, {
+  JoystickOptions,
+  JoystickOnMove,
+} from "joystick-controller";
+
 import { inputStore } from "../utils/Store";
+
+const joystickConfig: JoystickOptions = {
+  dynamicPosition: true,
+  maxRange: 30,
+};
 
 export default class InputController {
   private keyPressed: { [keyCode: string]: boolean };
+  private joyStick: JoystickController;
 
   constructor() {
     this.keyPressed = {};
     this.startListening();
+    this.joyStick = new JoystickController(joystickConfig, this.joyStickOnMove);
   }
 
   private startListening() {
@@ -63,9 +75,28 @@ export default class InputController {
     this.keyPressed[code] = false;
   };
 
+  private getDirectionFromJoystick(data: JoystickOnMove) {
+    const threshold = 10;
+    const { x, y } = data;
+
+    return {
+      forward: y > threshold,
+      backward: y < -threshold,
+      left: x < -threshold,
+      right: x > threshold,
+    };
+  }
+
+  private joyStickOnMove = (data: JoystickOnMove) => {
+    const input = this.getDirectionFromJoystick(data);
+    inputStore.setState(input);
+  };
+
   dispose() {
-    console.log("disposing input controller");
+    // console.log("disposing input controller");
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
+    this.joyStick.destroy();
+    inputStore.getState().reset();
   }
 }

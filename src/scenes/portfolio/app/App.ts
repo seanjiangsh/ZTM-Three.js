@@ -13,7 +13,7 @@ import ModalManager from "./ui/Modal-manager";
 import Resize from "./utils/Resize";
 import Loop from "./utils/Loop";
 import GUI from "./utils/GUI";
-import { sizeStore, appStateStore, inputStore } from "./utils/Store";
+import { appStateStore } from "./utils/Store";
 
 let instance: App | null = null;
 
@@ -79,8 +79,6 @@ export default class App {
     this.canvas.remove();
     instance = null;
 
-    sizeStore.getState().reset();
     appStateStore.getState().reset();
-    inputStore.getState().reset();
   }
 }

@@ -4,12 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@dimforge/rapier3d": "^0.14.0",
+    "joystick-controller": "^1.1.1",
     "three": "^0.170.0",
     "tweakpane": "^4.0.5",
     "vite-plugin-top-level-await": "^1.4.4",

@@ -217,7 +217,8 @@ button.start {
 }
 
 .modal h1,
-.modal p {
+.modal p,
+.modal a {
   margin: 15px 0 15px 0;
 }
 
