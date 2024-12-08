@@ -22,6 +22,10 @@ const scenes: { [key: string]: () => Promise<() => void> } = {
 
 let currentSceneCleanup: (() => void) | null = null;
 
+const sceneListToggle = document.getElementById("scene-list-toggle")!;
+const sceneContainer = document.getElementById("scene-list-container")!;
+const sceneList = document.getElementById("scene-list")!;
+
 async function loadScene(scene: string) {
   if (currentSceneCleanup) {
     currentSceneCleanup();
@@ -33,6 +37,12 @@ async function loadScene(scene: string) {
     currentSceneCleanup = await initScene();
   }
   document.title = `Three.js - ${scene}`;
+
+  sceneContainer.style.display = "none";
+  // * show scene list if it's development
+  if (import.meta.env.DEV) {
+    sceneContainer.style.display = "block";
+  }
 }
 
 document.querySelectorAll("#scene-list a").forEach((link) => {
@@ -45,11 +55,7 @@ document.querySelectorAll("#scene-list a").forEach((link) => {
   });
 });
 
-const sceneListToggle = document.getElementById("scene-list-toggle")!;
-const sceneList = document.getElementById("scene-list")!;
-
-// Create li for each scene in 'scene-list-container'
-const sceneContainer = document.getElementById("scene-list")!;
+// Create li for each scene in the list
 for (const scene in scenes) {
   const li = document.createElement("li");
   const a = document.createElement("a");
@@ -61,7 +67,7 @@ for (const scene in scenes) {
     if (scene) loadScene(scene);
   });
   li.appendChild(a);
-  sceneContainer.appendChild(li);
+  sceneList.appendChild(li);
 }
 
 sceneListToggle.addEventListener("click", () => {

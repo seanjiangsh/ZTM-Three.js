@@ -7,7 +7,9 @@ import { inputStore } from "../utils/Store";
 
 const joystickConfig: JoystickOptions = {
   dynamicPosition: true,
+  hideContextMenu: true,
   maxRange: 30,
+  mouseClickButton: import.meta.env.PROD ? "ALL" : "RIGHT",
 };
 
 export default class InputController {

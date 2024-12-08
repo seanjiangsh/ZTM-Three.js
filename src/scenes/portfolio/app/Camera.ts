@@ -55,8 +55,8 @@ export default class Camera {
     // characterPosition.y += 30; // above the character
     // characterPosition.z += 60; // behind the character
 
-    // same as "position.y += 10; position.z += 15;"
-    const cameraOffset = new THREE.Vector3(0, 10, 15);
+    // same as "position.y += 7; position.z += 14;"
+    const cameraOffset = new THREE.Vector3(0, 7, 14);
     // rotate the camera offset by the character rotation
     cameraOffset.applyQuaternion(characterRotation);
     cameraOffset.add(characterPosition);

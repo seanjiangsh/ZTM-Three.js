@@ -18,15 +18,15 @@ export default class ModalContentProvider {
         description: "Hello! I am Sean, a web developer.",
       },
       projects: {
-        title: "Projects",
+        title: "This project",
         link: {
-          href: "https://sean-j.dev/projects",
-          text: "Check out my projects",
+          href: "https://github.com/seanjiangsh/ZTM-Three.js",
+          text: "See the source code of this project",
         },
       },
       contactMe: {
         title: "Let's connect",
-        link: { href: "https://github.com/seanjiangsh", text: "Github" },
+        link: { href: "https://sean-j.dev", text: "My Site" },
       },
     };
   }
