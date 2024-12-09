@@ -17,7 +17,7 @@ export default class Portal {
     this.app = new App();
     this.mesh = portalMesh;
     this.modalContent = modalContent;
-    this.modalManager = new ModalManager();
+    this.modalManager = ModalManager.getInstance();
     this.prevIsNear = false;
 
     this.portalNearMaterial = new THREE.MeshBasicMaterial({

@@ -14,6 +14,7 @@ import Resize from "./utils/Resize";
 import Loop from "./utils/Loop";
 import GUI from "./utils/GUI";
 import { appStateStore } from "./utils/Store";
+import { Content } from "./ui/Modal-content-provider";
 
 let instance: App | null = null;
 
@@ -64,6 +65,19 @@ export default class App {
 
     // * Tweakpane GUI
     // this.gui = new GUI();
+
+    // * Shows the game instruction in modal
+    if (import.meta.env.PROD) this.showGameInstruction();
+  }
+
+  private showGameInstruction() {
+    const modalManager = ModalManager.getInstance();
+    const gameInstruction: Content = {
+      title: "Game Instruction",
+      description:
+        "Use the WASD, arrow keys or press for joystick to move the character.",
+    };
+    modalManager.openModal(gameInstruction);
   }
 
   dispose() {

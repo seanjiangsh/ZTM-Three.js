@@ -1,22 +1,28 @@
 import { Content } from "./Modal-content-provider";
 
 export default class ModalManager {
+  private static instance: ModalManager;
   private modal: HTMLElement;
   private close: HTMLElement;
   private titleElem: HTMLElement;
   private descElem: HTMLElement;
   private linkElem: HTMLAnchorElement;
 
-  constructor() {
+  private constructor() {
     this.modal = document.getElementById("myModal")!;
     this.titleElem = document.getElementById("modalTitle")!;
     this.descElem = document.getElementById("modalDescription")!;
     this.linkElem = document.getElementById("modalLink")! as HTMLAnchorElement;
 
     this.close = document.getElementsByClassName("close")[0]! as HTMLElement;
-    this.close.onclick = () => {
-      this.closeModal();
-    };
+    this.close.onclick = () => this.closeModal();
+  }
+
+  public static getInstance(): ModalManager {
+    if (!ModalManager.instance) {
+      ModalManager.instance = new ModalManager();
+    }
+    return ModalManager.instance;
   }
 
   openModal(content: Content) {
